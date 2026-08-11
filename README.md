@@ -54,6 +54,17 @@ proyecto (roles, modelo de datos, fases, convenciones).
    `raw_user_meta_data` algo como `{"full_name": "...", "role": "admin"}` —
    el trigger `handle_new_user` crea el `profiles` correspondiente.
 
+   Antes de invitar, agregar la URL donde corre la app a **Authentication →
+   URL Configuration → Redirect URLs** (ej. `http://localhost:3000/**` en
+   dev, `https://<dominio>/**` en cada entorno de Vercel) — si falta,
+   Supabase descarta el `redirect_to` del link de invitación/recovery y cae
+   al Site URL por defecto, rompiendo el flujo silenciosamente.
+
+   Si el plan de Supabase tiene límite de envío de emails y no llega la
+   invitación, generar el link directo con la Admin API
+   (`POST /auth/v1/admin/generate_link`, con el `service_role` key) y
+   compartirlo manualmente — evita el rate limit de emails.
+
 5. **Levantar**
 
    ```bash
@@ -67,7 +78,9 @@ src/
   app/
     page.tsx              # Landing pública
     login/                # Login (email/password)
-    auth/callback/         # Canje de código PKCE de Supabase Auth
+    auth/callback/         # Canje de código PKCE de Supabase Auth (ej. OAuth)
+    auth/confirm/           # Verificación de token_hash (invite/recovery/magic link)
+    auth/set-password/       # Pantalla para setear contraseña tras invite/recovery
     portal/                 # Área autenticada, multi-rol
       admin/  terapeuta/  tutor/  servicio-cliente/
   components/
@@ -88,6 +101,17 @@ supabase/
   migrations/                 # SQL versionado, RLS incluido en la misma migración que crea la tabla
 ```
 
+## Dos rutas de confirmación de auth, a propósito
+
+- `/auth/callback` — para flujos que Supabase resuelve con `?code=` (ej.
+  OAuth): hace `exchangeCodeForSession`.
+- `/auth/confirm` — para invite/recovery/magic link generados por la Admin
+  API o el dashboard: verifica `token_hash` con `verifyOtp()`. Estos links
+  a veces vuelven con los tokens en el **fragmento** de la URL
+  (`#access_token=...`), que nunca llega al servidor — por eso no sirve
+  `exchangeCodeForSession` para ese caso. Usar siempre `/auth/confirm` para
+  invitaciones y reset de contraseña.
+
 ## Convenciones (ver `contexto` para el detalle)
 
 - RLS en la misma migración/PR que crea la tabla — nunca "se agrega después".
@@ -98,11 +122,24 @@ supabase/
   `receipts`).
 - Nunca loguear PII ni datos de salud en consola o mensajes de commit.
 
+## Deploy (Vercel)
+
+Producción: https://ceadiincluyeme-one.vercel.app
+
+Env vars en Vercel (Settings → Environment Variables): las mismas 4 de
+`.env.local.example`, con `NEXT_PUBLIC_SITE_URL` apuntando al dominio de
+cada entorno. Cambios en env vars no aplican al deploy ya hecho — hay que
+redeployar (Deployments → `···` → Redeploy).
+
+No olvidar agregar cada dominio nuevo (`https://<dominio>/**`) a
+Authentication → URL Configuration → Redirect URLs en Supabase — ver nota
+arriba, es el error más fácil de repetir al agregar un entorno.
+
 ## Estado
 
-**Fase 1 (Fundación)** — repo, Supabase, Auth + roles, layout base, landing
-con carrusel. Deploy en Vercel y conexión real a un proyecto Supabase:
-pendiente de credenciales.
+**Fase 1 (Fundación) — completa.** Repo en GitHub, deploy en Vercel,
+Supabase conectado con RLS, auth (login + invite + recovery + roles)
+probado end-to-end en local y en producción.
 
 Siguiente: Fase 2 — núcleo clínico (pacientes, especialistas, citas,
 expedientes, muro de trazabilidad).
