@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/supabase/dal";
-import { ComingSoon } from "@/components/portal/coming-soon";
+import { QuickLinks } from "@/components/portal/quick-links";
 
 export default async function TutorPage() {
   const profile = await requireRole(["tutor"]);
@@ -9,9 +9,14 @@ export default async function TutorPage() {
       <h1 className="text-2xl font-semibold">
         Hola, {profile.full_name ?? "tutor"}
       </h1>
-      <ComingSoon
-        title="Seguimiento de tus hijos/as"
-        description="Vista de solo lectura de los pacientes donde sos guardián, con sus citas y avances. Llega en la Fase 3."
+      <QuickLinks
+        links={[
+          {
+            href: "/portal/tutor/hijos",
+            title: "Mis hijos/as",
+            description: "Citas y seguimiento de cada paciente a tu cargo.",
+          },
+        ]}
       />
     </div>
   );

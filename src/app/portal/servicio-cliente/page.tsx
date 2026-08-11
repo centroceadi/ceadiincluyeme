@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/supabase/dal";
-import { ComingSoon } from "@/components/portal/coming-soon";
+import { QuickLinks } from "@/components/portal/quick-links";
 
 export default async function ServicioClientePage() {
   const profile = await requireRole(["servicio_cliente"]);
@@ -9,9 +9,19 @@ export default async function ServicioClientePage() {
       <h1 className="text-2xl font-semibold">
         Hola, {profile.full_name ?? "equipo de servicio al cliente"}
       </h1>
-      <ComingSoon
-        title="Agenda y alta de pacientes"
-        description="Gestión de citas de todos los terapeutas y alta de pacientes, sin acceso a expedientes clínicos ni notas de seguimiento. Llega en la Fase 3."
+      <QuickLinks
+        links={[
+          {
+            href: "/portal/servicio-cliente/citas",
+            title: "Agenda de citas",
+            description: "Agendar y gestionar citas de todos los especialistas.",
+          },
+          {
+            href: "/portal/servicio-cliente/pacientes",
+            title: "Alta de pacientes",
+            description: "Registrar nuevos pacientes en el sistema.",
+          },
+        ]}
       />
     </div>
   );

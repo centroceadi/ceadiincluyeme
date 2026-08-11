@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/supabase/dal";
+import { QuickLinks } from "@/components/portal/quick-links";
 import { ComingSoon } from "@/components/portal/coming-soon";
 
 export default async function TerapeutaPage() {
@@ -9,9 +10,23 @@ export default async function TerapeutaPage() {
       <h1 className="text-2xl font-semibold">
         Hola, {profile.full_name ?? "terapeuta"}
       </h1>
+      <QuickLinks
+        links={[
+          {
+            href: "/portal/terapeuta/agenda",
+            title: "Mi agenda",
+            description: "Tus citas y su estado.",
+          },
+          {
+            href: "/portal/terapeuta/pacientes",
+            title: "Mis pacientes",
+            description: "Expedientes clínicos y psicopedagógicos.",
+          },
+        ]}
+      />
       <ComingSoon
-        title="Tu agenda y expedientes"
-        description="Citas propias, expedientes clínicos/psicopedagógicos de tus pacientes y 'Mis Ganancias' llegan en las Fases 2–4."
+        title="Mis ganancias"
+        description="Recibos y liquidaciones por especialista llegan en la Fase 4 (Contabilidad)."
       />
     </div>
   );

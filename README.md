@@ -164,9 +164,17 @@ arriba, es el error más fácil de repetir al agregar un entorno.
 Supabase conectado con RLS, auth (login + invite + recovery + roles)
 probado end-to-end en local y en producción.
 
-**Fase 2 (Núcleo clínico) — backend completo, UI pendiente.** Modelo de
-datos + RLS de pacientes/especialistas/citas/expedientes/trazabilidad,
-probado por rol contra el proyecto real.
+**Fase 2 (Núcleo clínico) — completa.** Modelo de datos + RLS +  UI por rol:
 
-Siguiente: UI de Fase 2 (listados y formularios de pacientes, especialistas,
-citas, expedientes, muro de trazabilidad).
+- Admin: `/portal/admin/{pacientes,especialistas,citas}`
+- Servicio al cliente: `/portal/servicio-cliente/{pacientes,citas}`
+- Terapeuta: `/portal/terapeuta/{agenda,pacientes,pacientes/[id]}` (expedientes
+  clínico/psicopedagógico en el detalle del paciente)
+- Tutor: `/portal/tutor/hijos` y `/portal/tutor/hijos/[id]` (citas + muro de
+  trazabilidad no clínico)
+
+Todas las queries en `src/lib/queries/clinical.ts` son agnósticas de rol —
+RLS decide qué filas devolver, la misma función sirve para los 4 roles.
+
+Siguiente: Fase 3 (roles y permisos avanzados) o Fase 4 (contabilidad),
+a definir.
