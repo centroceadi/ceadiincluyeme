@@ -101,6 +101,29 @@ supabase/
   migrations/                 # SQL versionado, RLS incluido en la misma migración que crea la tabla
 ```
 
+## Núcleo clínico (Fase 2 — backend)
+
+Migración `20260811100000_clinical_core.sql`: `specialists`, `patients`,
+`appointments`, `clinical_records`, `psycho_records`, `traceability_events`
+— con RLS y probado por rol (terapeuta/tutor/servicio_cliente/anon) contra
+el proyecto real antes de mergear. Tipos TS espejo en
+`src/lib/types/clinical.ts`. Todavía sin UI (listados/formularios) — es la
+siguiente pasada.
+
+Notas de diseño:
+
+- `traceability_events` es un log append-only: nadie inserta ahí
+  directamente (sin policy de insert para ningún rol), lo alimentan
+  triggers en `patients`/`appointments`/`clinical_records`/`psycho_records`.
+  Cada fila tiene `is_clinical` — servicio_cliente y tutor solo ven las
+  `false`.
+- `is_patient_specialist(patient_id)` / `is_patient_guardian(patient_id)`
+  (SECURITY DEFINER) son los helpers que reusan las policies de las 6
+  tablas para no repetir la lógica de "¿es mi paciente?".
+- servicio_cliente y tutor **no tienen ninguna policy** sobre
+  `clinical_records`/`psycho_records` — ausencia deliberada, no un
+  descuido, para que quede imposible de ver aunque cambie la UI.
+
 ## Dos rutas de confirmación de auth, a propósito
 
 - `/auth/callback` — para flujos que Supabase resuelve con `?code=` (ej.
@@ -141,5 +164,9 @@ arriba, es el error más fácil de repetir al agregar un entorno.
 Supabase conectado con RLS, auth (login + invite + recovery + roles)
 probado end-to-end en local y en producción.
 
-Siguiente: Fase 2 — núcleo clínico (pacientes, especialistas, citas,
-expedientes, muro de trazabilidad).
+**Fase 2 (Núcleo clínico) — backend completo, UI pendiente.** Modelo de
+datos + RLS de pacientes/especialistas/citas/expedientes/trazabilidad,
+probado por rol contra el proyecto real.
+
+Siguiente: UI de Fase 2 (listados y formularios de pacientes, especialistas,
+citas, expedientes, muro de trazabilidad).
