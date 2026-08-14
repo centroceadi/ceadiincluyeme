@@ -1,6 +1,5 @@
 import { requireRole } from "@/lib/supabase/dal";
 import { QuickLinks } from "@/components/portal/quick-links";
-import { ComingSoon } from "@/components/portal/coming-soon";
 
 export default async function TerapeutaPage() {
   const profile = await requireRole(["terapeuta"]);
@@ -22,11 +21,12 @@ export default async function TerapeutaPage() {
             title: "Mis pacientes",
             description: "Expedientes clínicos y psicopedagógicos.",
           },
+          {
+            href: "/portal/terapeuta/ganancias",
+            title: "Mis ganancias",
+            description: "Recibos y pagos correspondientes a tus servicios.",
+          },
         ]}
-      />
-      <ComingSoon
-        title="Mis ganancias"
-        description="Recibos y liquidaciones por especialista llegan en la Fase 4 (Contabilidad)."
       />
     </div>
   );

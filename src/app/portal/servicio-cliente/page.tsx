@@ -21,6 +21,21 @@ export default async function ServicioClientePage() {
             title: "Alta de pacientes",
             description: "Registrar nuevos pacientes en el sistema.",
           },
+          {
+            href: "/portal/servicio-cliente/recibos",
+            title: "Recibos",
+            description: "Emitir recibos, registrar pagos, imprimir POS.",
+          },
+          {
+            href: "/portal/servicio-cliente/cotizaciones",
+            title: "Cotizaciones",
+            description: "Armar cotizaciones para pacientes.",
+          },
+          {
+            href: "/portal/servicio-cliente/pagos-recurrentes",
+            title: "Pagos recurrentes",
+            description: "Planes de pago periódicos por paciente.",
+          },
         ]}
       />
     </div>

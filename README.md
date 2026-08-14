@@ -194,7 +194,7 @@ cerró el ítem de RLS completo. Hallazgos de la auditoría, corregidos en
 Ambos fixes verificados con sesiones reales por rol contra el proyecto
 Supabase antes de mergear.
 
-**Fase 4 (Contabilidad) — backend completo, UI pendiente.** Migración
+**Fase 4 (Contabilidad) — completa.** Migración
 `20260814100000_billing.sql`: `billing_services`, `receipts`,
 `receipt_lines`, `quotes`, `quote_lines`, `recurring_payments`,
 `transactions`. Tipos TS en `src/lib/types/billing.ts`.
@@ -218,4 +218,24 @@ totales solo, un terapeuta de prueba vio únicamente sus propias líneas/
 recibos, y `servicio_cliente` no pudo borrar un recibo (RLS lo bloqueó).
 Datos y usuarios de prueba limpiados al terminar.
 
-Sin UI todavía — es la siguiente pasada.
+UI por rol:
+
+- Admin: `/portal/admin/{servicios,recibos,recibos/[id],cotizaciones,
+  cotizaciones/[id],pagos-recurrentes}`
+- Servicio al cliente: mismas rutas bajo `/portal/servicio-cliente/`
+  (sin `servicios` — el catálogo lo administra solo admin)
+- Terapeuta: `/portal/terapeuta/ganancias` ("Mis Ganancias", solo lectura)
+- Recibo → línea → pago es un flujo de 3 pasos: crear el recibo redirige
+  directo a su detalle, donde se agregan líneas (con especialista
+  atribuido) y se registran pagos. El recibo pasa a `paid`/
+  `partially_paid` solo cuando la suma de pagos lo cubre.
+- `/imprimir/recibos/[id]`: vista de impresión térmica POS, 72mm de
+  ancho, fuera del layout del portal (sin sidebar) — protegida por RLS
+  vía `getReceipt()`, no por rol específico (cualquiera que pueda ver
+  el recibo puede imprimirlo).
+
+Probado end-to-end contra el proyecto real: recibo con línea y pago
+parcial renderizado correctamente en el detalle y en la vista de
+impresión, y aislamiento por rol confirmado con una sesión real de
+servicio_cliente (ve su propia sección, redirige fuera de admin y de
+Mis Ganancias). Datos de prueba limpiados al terminar.

@@ -15,11 +15,16 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { href: "/portal/admin/pacientes", label: "Pacientes" },
     { href: "/portal/admin/especialistas", label: "Especialistas" },
     { href: "/portal/admin/citas", label: "Citas" },
+    { href: "/portal/admin/servicios", label: "Servicios" },
+    { href: "/portal/admin/recibos", label: "Recibos" },
+    { href: "/portal/admin/cotizaciones", label: "Cotizaciones" },
+    { href: "/portal/admin/pagos-recurrentes", label: "Pagos recurrentes" },
   ],
   terapeuta: [
     { href: "/portal/terapeuta", label: "Resumen" },
     { href: "/portal/terapeuta/agenda", label: "Mi agenda" },
     { href: "/portal/terapeuta/pacientes", label: "Mis pacientes" },
+    { href: "/portal/terapeuta/ganancias", label: "Mis ganancias" },
   ],
   tutor: [
     { href: "/portal/tutor", label: "Resumen" },
@@ -29,6 +34,12 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { href: "/portal/servicio-cliente", label: "Resumen" },
     { href: "/portal/servicio-cliente/citas", label: "Agenda de citas" },
     { href: "/portal/servicio-cliente/pacientes", label: "Alta de pacientes" },
+    { href: "/portal/servicio-cliente/recibos", label: "Recibos" },
+    { href: "/portal/servicio-cliente/cotizaciones", label: "Cotizaciones" },
+    {
+      href: "/portal/servicio-cliente/pagos-recurrentes",
+      label: "Pagos recurrentes",
+    },
   ],
 };
 

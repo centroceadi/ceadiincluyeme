@@ -10,3 +10,10 @@ export function formatDateTime(iso: string): string {
 export function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("es-DO", { dateStyle: "medium" });
 }
+
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("es-DO", {
+    style: "currency",
+    currency: "DOP",
+  }).format(amount);
+}
