@@ -176,5 +176,18 @@ probado end-to-end en local y en producción.
 Todas las queries en `src/lib/queries/clinical.ts` son agnósticas de rol —
 RLS decide qué filas devolver, la misma función sirve para los 4 roles.
 
-Siguiente: Fase 3 (roles y permisos avanzados) o Fase 4 (contabilidad),
-a definir.
+**Fase 3 (Roles y permisos avanzados) — en curso.** Primer hallazgo de la
+auditoría de RLS, corregido en `20260814000000_rls_hardening.sql`:
+
+- `profiles` no dejaba leer el nombre de otros usuarios ni siquiera para el
+  directorio de especialistas (specialists.id referencia profiles.id, el
+  nombre vive ahí) — terapeuta/tutor/servicio_cliente veían nombres vacíos
+  en toda la UI de Fase 2. Nueva policy: cualquier logueado puede leer
+  `full_name` de perfiles que tengan fila en `specialists`.
+- `servicio_cliente` tenía policy `for all` (incluye DELETE) sobre
+  `patients` y `appointments` — un hard delete de paciente cascadea sus
+  citas/expedientes/trazabilidad. Reemplazado por policies explícitas de
+  select/insert/update, sin delete. Admin conserva `for all`.
+
+Ambos fixes verificados con sesiones reales por rol contra el proyecto
+Supabase antes de mergear.
