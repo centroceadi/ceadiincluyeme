@@ -1,7 +1,8 @@
 # CeadiPortal
 
-Sistema de gestión clínica y psicopedagógica para CEADI (Centro de Aprendizaje y
-Cambio, República Dominicana). Landing pública administrable + portal
+Sistema de gestión clínica y psicopedagógica para CEADI Inclúyeme (Centro de
+Evaluación, Atención al Desarrollo e Inclusión, República Dominicana).
+Landing pública administrable + portal
 multi-rol (Admin, Terapeuta, Tutor/Padre, Servicio al Cliente) con
 expedientes clínicos, agenda de citas, muro de trazabilidad y contabilidad
 conforme a normativa fiscal dominicana (ITBIS, NCF).

@@ -35,8 +35,8 @@ export default async function PrintReceiptPage({
 
       <div className="w-[72mm] bg-white p-2 text-[10px] leading-tight text-black print:p-1">
         <div className="text-center">
-          <p className="text-xs font-bold">CEADI</p>
-          <p>Centro de Aprendizaje y Cambio</p>
+          <p className="text-xs font-bold">CEADI Inclúyeme</p>
+          <p>Centro de Evaluación, Atención al Desarrollo e Inclusión</p>
           <p>República Dominicana</p>
         </div>
 

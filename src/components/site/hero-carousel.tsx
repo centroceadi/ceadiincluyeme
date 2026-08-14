@@ -12,13 +12,14 @@ import type { HeroSlide } from "@/lib/types/content";
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-1",
-    image_url: null,
-    title: "Acompañamiento clínico y psicopedagógico",
-    subtitle: "Un equipo especializado para cada etapa del desarrollo.",
+    image_url: "/hero-ceadi.png",
+    title: "Intervenir a tiempo cambia historias",
+    subtitle:
+      "Centro especializado en neurodesarrollo y atención psicológica infantil.",
     display_order: 0,
     transition_type: "fade",
     duration_ms: 6000,
-    overlay_opacity: 0.45,
+    overlay_opacity: 0.35,
     active: true,
     created_at: "",
     updated_at: "",
@@ -26,8 +27,9 @@ const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-2",
     image_url: null,
-    title: "Seguimiento cercano, en cada cita",
-    subtitle: "Trazabilidad completa del proceso de cada paciente.",
+    title: "Conoce a nuestro equipo",
+    subtitle:
+      "Profesionales especializados comprometidos con el desarrollo y bienestar de cada niño y su familia.",
     display_order: 1,
     transition_type: "fade",
     duration_ms: 6000,
@@ -39,8 +41,9 @@ const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-3",
     image_url: null,
-    title: "Un centro, un equipo, un mismo objetivo",
-    subtitle: "CEADI — Centro de Aprendizaje y Cambio.",
+    title: "Un enfoque familiar",
+    subtitle:
+      "Comprendemos las preocupaciones de cada familia y las acompañamos con calidez y respeto.",
     display_order: 2,
     transition_type: "fade",
     duration_ms: 6000,
@@ -52,9 +55,9 @@ const FALLBACK_SLIDES: HeroSlide[] = [
 ];
 
 const GRADIENTS = [
-  "from-teal-600 to-emerald-700",
-  "from-indigo-600 to-blue-700",
-  "from-amber-600 to-orange-700",
+  "from-primary to-secondary",
+  "from-accent to-primary",
+  "from-secondary to-accent",
 ];
 
 export function HeroCarousel({
@@ -103,7 +106,7 @@ export function HeroCarousel({
       />
 
       <div className="relative flex h-full flex-col items-center justify-center gap-4 px-4 text-center text-white">
-        <h1 className="max-w-2xl text-3xl font-semibold text-balance md:text-5xl">
+        <h1 className="max-w-2xl font-serif text-3xl font-semibold text-balance md:text-5xl">
           {active.title}
         </h1>
         {active.subtitle && (
