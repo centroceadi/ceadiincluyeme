@@ -176,8 +176,10 @@ probado end-to-end en local y en producción.
 Todas las queries en `src/lib/queries/clinical.ts` son agnósticas de rol —
 RLS decide qué filas devolver, la misma función sirve para los 4 roles.
 
-**Fase 3 (Roles y permisos avanzados) — en curso.** Primer hallazgo de la
-auditoría de RLS, corregido en `20260814000000_rls_hardening.sql`:
+**Fase 3 (Roles y permisos avanzados) — completa.** Portal Tutor y rol
+Servicio al Cliente ya habían quedado construidos en la Fase 2; acá se
+cerró el ítem de RLS completo. Hallazgos de la auditoría, corregidos en
+`20260814000000_rls_hardening.sql`:
 
 - `profiles` no dejaba leer el nombre de otros usuarios ni siquiera para el
   directorio de especialistas (specialists.id referencia profiles.id, el
@@ -191,3 +193,29 @@ auditoría de RLS, corregido en `20260814000000_rls_hardening.sql`:
 
 Ambos fixes verificados con sesiones reales por rol contra el proyecto
 Supabase antes de mergear.
+
+**Fase 4 (Contabilidad) — backend completo, UI pendiente.** Migración
+`20260814100000_billing.sql`: `billing_services`, `receipts`,
+`receipt_lines`, `quotes`, `quote_lines`, `recurring_payments`,
+`transactions`. Tipos TS en `src/lib/types/billing.ts`.
+
+Decisiones confirmadas con el usuario (2026-08-14):
+
+- Emiten/cobran recibos: **admin y servicio_cliente**. Terapeuta solo ve
+  los propios, de solo lectura ("Mis Ganancias") — vía
+  `receipt_lines.specialist_id`.
+- **NCF es de uso interno únicamente** — no valida contra el formato/
+  secuencia oficial de la DGII. Sigue sin confirmar con CEADI si hace
+  falta integrar e-CF de verdad (fuera de alcance por ahora).
+- `billing_services.itbis_exempt` nace en `true` por defecto — Art. 343
+  del Código Tributario RD (servicios de salud exentos de ITBIS).
+- `subtotal`/`itbis_total`/`total` de `receipts`/`quotes` se recalculan
+  solos con un trigger cuando cambian sus líneas — nunca se confía en
+  que el cliente mande los totales bien.
+
+Probado contra el proyecto real: un recibo con 2 líneas recalculó sus
+totales solo, un terapeuta de prueba vio únicamente sus propias líneas/
+recibos, y `servicio_cliente` no pudo borrar un recibo (RLS lo bloqueó).
+Datos y usuarios de prueba limpiados al terminar.
+
+Sin UI todavía — es la siguiente pasada.
