@@ -8,6 +8,7 @@ export type Profile = {
   id: string;
   full_name: string | null;
   role: Role;
+  active: boolean;
 };
 
 /**
@@ -39,13 +40,20 @@ export const getProfile = cache(async (): Promise<Profile> => {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, role")
+    .select("id, full_name, role, active")
     .eq("id", user.id)
     .single();
 
   if (error || !data || !isRole(data.role)) {
     // Perfil inexistente o rol inválido: no confiar, cortar acá.
     redirect("/login");
+  }
+
+  if (!data.active) {
+    // Cuenta desactivada por un admin (ver /portal/admin/usuarios):
+    // cortar la sesión, no solo negar la página.
+    await supabase.auth.signOut();
+    redirect("/login?disabled=1");
   }
 
   return data as Profile;

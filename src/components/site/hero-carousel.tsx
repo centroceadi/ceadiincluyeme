@@ -5,40 +5,49 @@ import { cn } from "@/lib/utils";
 import type { HeroSlide } from "@/lib/types/content";
 
 /**
- * Slides de arranque mientras no hay contenido real en `hero_carousel_slides`
- * (Fase 5 conecta el CMS). Estructura ya alineada a esa tabla: `order`,
- * `transition_type`, `duration_ms`, `overlay_opacity` por slide.
+ * Slides de arranque mientras no hay contenido real (activo) en
+ * `hero_carousel_slides` — la landing (src/app/page.tsx) le pasa los
+ * slides reales de Supabase; si no hay ninguno activo, cae acá.
  */
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-1",
-    image_url: "",
+    image_url: null,
     title: "Acompañamiento clínico y psicopedagógico",
     subtitle: "Un equipo especializado para cada etapa del desarrollo.",
-    order: 0,
+    display_order: 0,
     transition_type: "fade",
     duration_ms: 6000,
     overlay_opacity: 0.45,
+    active: true,
+    created_at: "",
+    updated_at: "",
   },
   {
     id: "fallback-2",
-    image_url: "",
+    image_url: null,
     title: "Seguimiento cercano, en cada cita",
     subtitle: "Trazabilidad completa del proceso de cada paciente.",
-    order: 1,
+    display_order: 1,
     transition_type: "fade",
     duration_ms: 6000,
     overlay_opacity: 0.45,
+    active: true,
+    created_at: "",
+    updated_at: "",
   },
   {
     id: "fallback-3",
-    image_url: "",
+    image_url: null,
     title: "Un centro, un equipo, un mismo objetivo",
     subtitle: "CEADI — Centro de Aprendizaje y Cambio.",
-    order: 2,
+    display_order: 2,
     transition_type: "fade",
     duration_ms: 6000,
     overlay_opacity: 0.45,
+    active: true,
+    created_at: "",
+    updated_at: "",
   },
 ];
 

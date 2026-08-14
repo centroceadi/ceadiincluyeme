@@ -19,6 +19,10 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { href: "/portal/admin/recibos", label: "Recibos" },
     { href: "/portal/admin/cotizaciones", label: "Cotizaciones" },
     { href: "/portal/admin/pagos-recurrentes", label: "Pagos recurrentes" },
+    { href: "/portal/admin/usuarios", label: "Usuarios" },
+    { href: "/portal/admin/equipo", label: "Equipo" },
+    { href: "/portal/admin/recursos", label: "Recursos" },
+    { href: "/portal/admin/carrusel", label: "Carrusel" },
   ],
   terapeuta: [
     { href: "/portal/terapeuta", label: "Resumen" },

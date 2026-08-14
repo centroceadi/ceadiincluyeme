@@ -239,3 +239,53 @@ parcial renderizado correctamente en el detalle y en la vista de
 impresión, y aislamiento por rol confirmado con una sesión real de
 servicio_cliente (ve su propia sección, redirige fuera de admin y de
 Mis Ganancias). Datos de prueba limpiados al terminar.
+
+**Fase 5 (Administración y contenido) — completa.** Migración
+`20260814200000_admin_content.sql`: `team_members`, `resources`,
+`hero_carousel_slides` (contenido **público** de la landing — RLS de
+select no chequea sesión, solo `active = true`) + `profiles.active`
+(activar/desactivar cuentas sin borrarlas) + bucket de Storage
+`landing-media` (público, con policies de insert/update/delete solo para
+admin) para las fotos del equipo y las imágenes del carrusel.
+
+- `/portal/admin/usuarios`: invitar (usa el cliente admin/service_role
+  de `src/lib/supabase/admin.ts`, sin usar hasta ahora), cambiar rol,
+  activar/desactivar. Un admin no puede tocar su propio rol ni
+  desactivarse a sí mismo (protección explícita en las server actions).
+  Cuenta desactivada → la sesión existente se corta en el próximo
+  request, aunque el token siga técnicamente vigente (`getProfile()` en
+  el DAL revisa `active` contra la base en cada llamada, no confía en el
+  JWT). Probado con una sesión real: `active=false` bloqueó el acceso
+  en la siguiente request.
+- `/portal/admin/{equipo,recursos,carrusel}`: CRUD con subida de imagen
+  real a Storage (`landing-media/team/…`, `landing-media/carousel/…`).
+  La subida pasa por un `<input type="file">` normal dentro del mismo
+  form — Server Actions de Next.js reciben `File` directo en el
+  `FormData`, no hace falta ningún cliente de subida en el navegador.
+- La landing (`/`) ahora lee `hero_carousel_slides`/`team_members`/
+  `resources` reales; si no hay ningún slide activo, cae al fallback
+  hardcodeado de siempre.
+
+⚠️ **Pendiente de configurar a mano en el dashboard**: el email que manda
+`inviteUserByEmail` usa por defecto `{{ .ConfirmationURL }}`, que apunta
+al `/verify` de Supabase y redirige con los tokens en el *fragmento* de
+la URL — el mismo problema que ya resolvimos en Fase 1 para
+invite/recovery manuales (ver sección de arriba). Para que el botón del
+email de invitación funcione solo, hay que editar la plantilla **"Invite
+user"** en Authentication → Email Templates y cambiar el link a:
+
+```
+{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite
+```
+
+Sin este cambio, invitar desde `/portal/admin/usuarios` sigue funcionando
+para crear el usuario, pero el link del email no confirma solo — hay que
+generar el link a mano con la Admin API (mismo procedimiento que en Fase
+1) hasta que se actualice la plantilla.
+
+---
+
+Con esto, las Fases 1–5 del plan original (fundación, núcleo clínico,
+roles/RLS, contabilidad, administración/contenido) están completas.
+Siguiente: Fase 6 (migración de datos reales desde Base44 + QA por rol)
+y Fase 7 (corte a producción) — ver `contexto` para el detalle.
