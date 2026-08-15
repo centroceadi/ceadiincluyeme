@@ -313,6 +313,33 @@ Fase 6.
   pública configurado en Base44 (igual que nuestras tablas de
   contenido); no aplica a entidades que requieran auth.
 
+**Equipo ↔ Especialistas conectados (2026-08-15)**, migración
+`20260815100000_link_specialists_team.sql`: `specialists.team_member_id`
+(nullable, único) — antes eran dos mundos separados (Equipo = bio
+pública de la landing, Especialistas = cuenta de portal + agenda/citas),
+con los 11 terapeutas reales del Equipo sin ninguna cuenta de portal, así
+que ninguno era asignable a una cita.
+
+- `/portal/admin/especialistas` tiene ahora una acción "Invitar
+  integrante del equipo como especialista": en un solo paso crea la
+  cuenta de portal (rol terapeuta), la fila de `specialists` con la bio
+  pre-cargada desde `team_members`, y las deja vinculadas — apenas la
+  persona acepta la invitación ya es asignable en `/portal/admin/citas`.
+  El form viejo ("vincular un usuario ya invitado") sigue existiendo
+  para cuando el usuario de portal ya existía de antes.
+- `/portal/admin/equipo` muestra si cada integrante ya tiene especialista
+  vinculado o no, con link directo a Especialistas.
+- Probado con sesión real de admin (Playwright contra el dev server, no
+  solo REST): 1) intento con un email ya registrado falló limpio (sin
+  dejar nada a medias); 2) `example.com` es rechazado por la validación
+  de Supabase — para probar con datos reales pero sin mandarle un email
+  real a nadie, usar un alias `+` del propio email
+  (`tuemail+prueba@gmail.com` — llega al mismo inbox, pero Supabase lo
+  trata como dirección nueva); 3) con eso, el flujo completo funcionó:
+  perfil + specialists + team_member_id vinculados, y la persona
+  apareció en el selector de especialista de Citas. Dato de prueba
+  limpiado al terminar.
+
 Siguiente: seguir con Fase 6 (resto de la migración de datos reales
 desde Base44 + QA por rol) y Fase 7 (corte a producción) — ver
 `contexto` para el detalle.

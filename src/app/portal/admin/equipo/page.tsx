@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/supabase/dal";
 import { listTeamMembers } from "@/lib/queries/content";
+import { listSpecialists } from "@/lib/queries/clinical";
 import {
   createTeamMember,
   deleteTeamMember,
@@ -21,14 +23,26 @@ import { Badge } from "@/components/ui/badge";
 
 export default async function AdminEquipoPage() {
   await requireRole(["admin"]);
-  const members = await listTeamMembers();
+  const [members, specialists] = await Promise.all([
+    listTeamMembers(),
+    listSpecialists(),
+  ]);
+  const linkedTeamMemberIds = new Set(
+    specialists.map((s) => s.team_member_id).filter((id): id is string => !!id)
+  );
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Equipo</h1>
       <p className="text-sm text-muted-foreground">
         Se muestra en la sección &quot;Equipo&quot; de la landing pública —
-        solo los integrantes marcados como activos.
+        solo los integrantes marcados como activos. Un integrante
+        &quot;Terapeuta&quot; solo puede recibir citas si además tiene cuenta
+        de portal vinculada en{" "}
+        <Link href="/portal/admin/especialistas" className="text-primary hover:underline">
+          Especialistas
+        </Link>
+        .
       </p>
 
       <Card>
@@ -77,6 +91,7 @@ export default async function AdminEquipoPage() {
                 <TableHead>Foto</TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Cargo</TableHead>
+                <TableHead>Especialista</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead />
               </TableRow>
@@ -98,6 +113,18 @@ export default async function AdminEquipoPage() {
                   </TableCell>
                   <TableCell className="font-medium">{m.full_name}</TableCell>
                   <TableCell>{m.role_title}</TableCell>
+                  <TableCell>
+                    {linkedTeamMemberIds.has(m.id) ? (
+                      <Badge>Vinculado</Badge>
+                    ) : (
+                      <Link
+                        href="/portal/admin/especialistas"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Vincular →
+                      </Link>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={m.active ? "default" : "outline"}>
                       {m.active ? "Activo" : "Oculto"}
@@ -124,7 +151,7 @@ export default async function AdminEquipoPage() {
               {members.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center text-muted-foreground"
                   >
                     Todavía no hay integrantes cargados.

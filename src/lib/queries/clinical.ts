@@ -32,7 +32,10 @@ async function namesById(
   return new Map((data ?? []).map((p) => [p.id, p.full_name]));
 }
 
-export type SpecialistWithName = Specialist & { full_name: string | null };
+export type SpecialistWithName = Specialist & {
+  full_name: string | null;
+  team_member_photo_url: string | null;
+};
 
 export async function listSpecialists(): Promise<SpecialistWithName[]> {
   const supabase = await createClient();
@@ -41,6 +44,21 @@ export async function listSpecialists(): Promise<SpecialistWithName[]> {
     .select("*")
     .order("specialty");
   const specialists = (data ?? []) as Specialist[];
+
+  const teamMemberIds = specialists
+    .map((s) => s.team_member_id)
+    .filter((id): id is string => !!id);
+  const photos =
+    teamMemberIds.length === 0
+      ? []
+      : (
+          await supabase
+            .from("team_members")
+            .select("id, photo_url")
+            .in("id", teamMemberIds)
+        ).data ?? [];
+  const photoByTeamMemberId = new Map(photos.map((p) => [p.id, p.photo_url]));
+
   const names = await namesById(
     supabase,
     specialists.map((s) => s.id)
@@ -48,6 +66,9 @@ export async function listSpecialists(): Promise<SpecialistWithName[]> {
   return specialists.map((s) => ({
     ...s,
     full_name: names.get(s.id) ?? null,
+    team_member_photo_url: s.team_member_id
+      ? photoByTeamMemberId.get(s.team_member_id) ?? null
+      : null,
   }));
 }
 
@@ -62,6 +83,26 @@ export async function listUnlinkedTherapistProfiles(): Promise<
   ]);
   const linked = new Set((specialists ?? []).map((s) => s.id));
   return (profiles ?? []).filter((p) => !linked.has(p.id));
+}
+
+/** team_members que todavía no están vinculados a ningún `specialists`. */
+export async function listUnlinkedTeamMembers(): Promise<
+  { id: string; full_name: string; bio: string | null }[]
+> {
+  const supabase = await createClient();
+  const [{ data: members }, { data: specialists }] = await Promise.all([
+    supabase
+      .from("team_members")
+      .select("id, full_name, bio")
+      .order("display_order"),
+    supabase.from("specialists").select("team_member_id"),
+  ]);
+  const linked = new Set(
+    (specialists ?? [])
+      .map((s) => s.team_member_id)
+      .filter((id): id is string => !!id)
+  );
+  return (members ?? []).filter((m) => !linked.has(m.id));
 }
 
 export async function listPatients(): Promise<Patient[]> {

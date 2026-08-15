@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { verifySession } from "@/lib/supabase/dal";
 import type { AppointmentStatus } from "@/lib/types/clinical";
 
@@ -45,10 +46,63 @@ export async function createSpecialist(formData: FormData) {
     specialty,
     license_number: str(formData, "license_number"),
     bio: str(formData, "bio"),
+    team_member_id: str(formData, "team_member_id"),
   });
   if (error) throw new Error(error.message);
 
   revalidatePath("/portal/admin/especialistas");
+  revalidatePath("/portal/admin/equipo");
+}
+
+/**
+ * Invita a un integrante del Equipo (team_members, contenido público de la
+ * landing) como especialista con cuenta de portal, en un solo paso: crea el
+ * usuario (role=terapeuta), la fila de specialists, y los deja vinculados
+ * — así puede quedar asignado a citas apenas acepta la invitación. Ver
+ * nota sobre la plantilla de email "Invite user" en el README (mismo
+ * gotcha que /portal/admin/usuarios).
+ */
+export async function inviteAndLinkSpecialist(formData: FormData) {
+  const team_member_id = str(formData, "team_member_id");
+  const email = str(formData, "email");
+  const specialty = str(formData, "specialty");
+  if (!team_member_id || !email || !specialty) {
+    throw new Error("Faltan datos para invitar al especialista.");
+  }
+
+  const supabase = await createClient();
+  const { data: teamMember, error: teamMemberError } = await supabase
+    .from("team_members")
+    .select("full_name, bio")
+    .eq("id", team_member_id)
+    .single();
+  if (teamMemberError || !teamMember) {
+    throw new Error("No se encontró el integrante del equipo.");
+  }
+
+  const admin = createAdminClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const { data: invited, error: inviteError } =
+    await admin.auth.admin.inviteUserByEmail(email, {
+      data: { full_name: teamMember.full_name, role: "terapeuta" },
+      redirectTo: `${siteUrl}/auth/confirm?next=%2Fauth%2Fset-password`,
+    });
+  if (inviteError || !invited.user) {
+    throw new Error(inviteError?.message ?? "No se pudo invitar al usuario.");
+  }
+
+  const { error: specialistError } = await supabase.from("specialists").insert({
+    id: invited.user.id,
+    specialty,
+    license_number: str(formData, "license_number"),
+    bio: teamMember.bio,
+    team_member_id,
+  });
+  if (specialistError) throw new Error(specialistError.message);
+
+  revalidatePath("/portal/admin/especialistas");
+  revalidatePath("/portal/admin/equipo");
+  revalidatePath("/portal/admin/usuarios");
 }
 
 export async function createAppointment(formData: FormData) {

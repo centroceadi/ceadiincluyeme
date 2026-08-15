@@ -26,6 +26,8 @@ export type Specialist = {
   license_number: string | null;
   bio: string | null;
   active: boolean;
+  /** Vínculo opcional con su bio pública en team_members (landing). */
+  team_member_id: string | null;
   created_at: string;
   updated_at: string;
 };
