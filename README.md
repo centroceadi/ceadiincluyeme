@@ -340,6 +340,53 @@ que ninguno era asignable a una cita.
   apareció en el selector de especialista de Citas. Dato de prueba
   limpiado al terminar.
 
+**Carrusel con imágenes reales + texto fijo (2026-08-15)**: los 9 slides
+de `HeroCarousel` del sitio viejo ya están cargados en
+`hero_carousel_slides` (mismo mecanismo de lectura pública de Base44 que
+los recursos). De paso se corrigió el diseño del hero
+(`src/components/site/hero-carousel.tsx`): antes cada slide traía su
+propio título superpuesto con una capa oscura fuerte para que se leyera,
+lo que tapaba las fotos del equipo — ahora el texto (badge, título,
+párrafo, botones) es **fijo**, no cambia por slide, y la capa oscura
+bajó a 10% de opacidad (`overlay_opacity: 0.1`) solo para dar contraste
+mínimo, no para ocultar la foto.
+
+**Formulario público de contacto (2026-08-15)**, migración
+`20260816000000_contact_requests.sql`: tabla `contact_requests`, con el
+patrón de RLS invertido respecto a `team_members`/`resources`/
+`hero_carousel_slides` — ahí el público *lee* y solo admin *escribe*;
+acá cualquiera (incluso sin sesión) puede **insertar** una solicitud,
+pero solo **admin y servicio_cliente** pueden leerlas/actualizarlas
+(son datos de contacto de gente real, no contenido público).
+
+- Sección "Contacto" de la landing (`src/app/page.tsx`) rediseñada:
+  tarjeta de información (teléfono, WhatsApp, email, las 3 sedes con
+  dirección — se agregó la Sucursal Independencia) + tarjeta de horario
+  + formulario (`src/components/site/contact-form.tsx`, client
+  component con `useActionState` sobre `submitContactRequest`, mismo
+  patrón que `login-form.tsx`). El submit no recarga la página: muestra
+  un mensaje de éxito o el error inline.
+- `src/lib/actions/content.ts`: `submitContactRequest` no chequea rol
+  (no requiere sesión) — la única autorización real es la policy RLS de
+  insert. `updateContactRequestStatus` sí requiere admin/servicio_cliente
+  vía RLS (nuevo → contactado → cerrado).
+- `/portal/admin/solicitudes` y `/portal/servicio-cliente/solicitudes`:
+  misma sección compartida (`ContactRequestsSection`) para ver y cambiar
+  el estado de las solicitudes recibidas, siguiendo el mismo patrón de
+  `basePath`/sección compartida que Recibos en Fase 4.
+- Los 6 servicios reales de la landing (`SERVICIOS` en `page.tsx`) y el
+  horario de atención ("Lunes a Viernes: 8:00 AM – 6:00 PM", "Sábados:
+  8:00 AM – 1:00 PM") también vienen de las entidades `Service`/copy del
+  sitio viejo, confirmados contra su JS compilado.
+
+⚠️ Al revisar la entidad `ContactRequest` del sitio viejo para confirmar
+el formato real de las solicitudes, se encontró que Base44 la expone con
+lectura **pública** — cualquiera puede leer nombre/teléfono/email/mensaje
+de clientes reales que llenaron ese form en el sitio viejo. Es un hallazgo
+de seguridad real en centroceadi.net (fuera de este repo, no se tocó
+nada ahí) — pendiente de que el usuario lo gestione con quien administre
+esa cuenta de Base44.
+
 Siguiente: seguir con Fase 6 (resto de la migración de datos reales
 desde Base44 + QA por rol) y Fase 7 (corte a producción) — ver
 `contexto` para el detalle.

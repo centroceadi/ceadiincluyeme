@@ -20,6 +20,7 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { href: "/portal/admin/cotizaciones", label: "Cotizaciones" },
     { href: "/portal/admin/pagos-recurrentes", label: "Pagos recurrentes" },
     { href: "/portal/admin/usuarios", label: "Usuarios" },
+    { href: "/portal/admin/solicitudes", label: "Solicitudes" },
     { href: "/portal/admin/equipo", label: "Equipo" },
     { href: "/portal/admin/recursos", label: "Recursos" },
     { href: "/portal/admin/carrusel", label: "Carrusel" },
@@ -38,6 +39,7 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { href: "/portal/servicio-cliente", label: "Resumen" },
     { href: "/portal/servicio-cliente/citas", label: "Agenda de citas" },
     { href: "/portal/servicio-cliente/pacientes", label: "Alta de pacientes" },
+    { href: "/portal/servicio-cliente/solicitudes", label: "Solicitudes" },
     { href: "/portal/servicio-cliente/recibos", label: "Recibos" },
     { href: "/portal/servicio-cliente/cotizaciones", label: "Cotizaciones" },
     {

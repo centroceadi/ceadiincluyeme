@@ -36,6 +36,27 @@ export type TeamMember = {
   updated_at: string;
 };
 
+export type ContactRequestStatus = "nuevo" | "contactado" | "cerrado";
+
+/**
+ * Solicitud del formulario público de contacto —
+ * supabase/migrations/20260816000000_contact_requests.sql. Al revés que
+ * las tablas de arriba: cualquiera (incluso anónimo) puede INSERTAR,
+ * pero solo admin/servicio_cliente pueden leerlas (son datos de contacto
+ * de gente real, no contenido público).
+ */
+export type ContactRequest = {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  preferred_location: string | null;
+  service_interest: string | null;
+  message: string;
+  status: ContactRequestStatus;
+  created_at: string;
+};
+
 export type ResourceType = "articulo" | "video";
 
 export type Resource = {

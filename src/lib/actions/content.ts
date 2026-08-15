@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ResourceType, SlideTransition } from "@/lib/types/content";
+import type {
+  ContactRequestStatus,
+  ResourceType,
+  SlideTransition,
+} from "@/lib/types/content";
 
 /**
  * Server actions de contenido (equipo, recursos, carrusel). RLS decide
@@ -194,4 +198,63 @@ export async function deleteHeroSlide(id: string) {
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidateContent();
+}
+
+// ---- contacto ----
+
+export type ContactRequestState =
+  | { ok: true }
+  | { ok: false; error: string }
+  | undefined;
+
+/**
+ * Envío del formulario público de contacto (sin sesión — cualquier
+ * visitante de la landing). A diferencia del resto de las actions de este
+ * archivo, no tira: devuelve un state para que el form (client component,
+ * useActionState) muestre un mensaje sin recargar la página. RLS
+ * (contact_requests_insert_public) es lo único que realmente autoriza el
+ * insert acá — esta función no chequea rol porque no requiere sesión.
+ */
+export async function submitContactRequest(
+  _prevState: ContactRequestState,
+  formData: FormData
+): Promise<ContactRequestState> {
+  const full_name = str(formData, "full_name");
+  const phone = str(formData, "phone");
+  const message = str(formData, "message");
+  if (!full_name || !phone || !message) {
+    return { ok: false, error: "Completá nombre, teléfono y mensaje." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("contact_requests").insert({
+    full_name,
+    phone,
+    email: str(formData, "email"),
+    preferred_location: str(formData, "preferred_location"),
+    service_interest: str(formData, "service_interest"),
+    message,
+  });
+  if (error) {
+    return {
+      ok: false,
+      error: "No pudimos enviar tu solicitud. Probá de nuevo en unos minutos.",
+    };
+  }
+
+  return { ok: true };
+}
+
+export async function updateContactRequestStatus(
+  id: string,
+  status: ContactRequestStatus
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("contact_requests")
+    .update({ status })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/portal/admin/solicitudes");
+  revalidatePath("/portal/servicio-cliente/solicitudes");
 }

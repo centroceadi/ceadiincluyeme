@@ -1,6 +1,11 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { HeroSlide, Resource, TeamMember } from "@/lib/types/content";
+import type {
+  ContactRequest,
+  HeroSlide,
+  Resource,
+  TeamMember,
+} from "@/lib/types/content";
 
 /**
  * Contenido público de la landing. Mismo patrón que
@@ -44,4 +49,19 @@ export async function listHeroSlides(): Promise<HeroSlide[]> {
     .select("*")
     .order("display_order");
   return (data ?? []) as HeroSlide[];
+}
+
+/**
+ * Solicitudes del formulario público de contacto. A diferencia de las
+ * funciones de arriba, esta SÍ depende de RLS para ocultar datos por
+ * completo (no "público ve activos, admin ve todo" — acá el público no ve
+ * nada): sin sesión admin/servicio_cliente, devuelve lista vacía.
+ */
+export async function listContactRequests(): Promise<ContactRequest[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("contact_requests")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return (data ?? []) as ContactRequest[];
 }

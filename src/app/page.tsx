@@ -1,24 +1,65 @@
+import {
+  PhoneIcon,
+  MessageCircleIcon,
+  MailIcon,
+  MapPinIcon,
+  ClockIcon,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { HeroCarousel } from "@/components/site/hero-carousel";
+import { ContactForm } from "@/components/site/contact-form";
 import { listHeroSlides, listResources, listTeamMembers } from "@/lib/queries/content";
 
 // Copy tomado del sitio real de CEADI (centroceadi.net) — mismos títulos
-// de sección y enfoque de servicios/valores que la versión anterior.
+// de sección y servicios que la versión anterior (entidad `Service` del
+// portal viejo).
 const SERVICIOS = [
+  {
+    title: "Neuropsicología Clínica",
+    description:
+      "Evaluación y rehabilitación de funciones cognitivas como atención, memoria, lenguaje y funciones ejecutivas en niños y adolescentes.",
+  },
   {
     title: "Evaluación del Neurodesarrollo",
     description: "Diagnóstico temprano para intervenir a tiempo.",
   },
   {
-    title: "Terapia clínica",
-    description: "Acompañamiento individual con especialistas del centro.",
+    title: "Logopedia",
+    description:
+      "Tratamiento de dificultades del habla, lenguaje y comunicación en niños y adolescentes.",
   },
   {
-    title: "Orientación familiar",
+    title: "Terapia Familiar",
     description:
-      "Comprendemos las preocupaciones de cada familia y las acompañamos con calidez y respeto.",
+      "Acompañamiento a la familia como parte activa del proceso terapéutico de cada niño.",
+  },
+  {
+    title: "Intervención Psicopedagógica",
+    description:
+      "Apoyo a dificultades de aprendizaje para un mejor desempeño escolar.",
+  },
+  {
+    title: "Psicología Clínica Infantil",
+    description:
+      "Acompañamiento individual con especialistas en el desarrollo emocional de niños y adolescentes.",
+  },
+];
+
+const SEDES = [
+  {
+    name: "Sede Villa Marina",
+    address: "Calle 6 No.13, Villa Marina, D.N.",
+  },
+  {
+    name: "Sede Villa Mella",
+    address: "C/ Principal Urb. del Edén #9, Santo Domingo Norte",
+  },
+  {
+    name: "Sucursal Independencia",
+    address:
+      "Calle Mercado No. 48, Peatón 7, Sector Invi, próximo a la Av. Independencia, Distrito Nacional.",
   },
 ];
 
@@ -193,59 +234,82 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        <section id="contacto" className="mx-auto max-w-6xl px-4 py-16">
-          <h2 className="mb-8 font-serif text-2xl font-semibold md:text-3xl">
-            Contacto
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="flex flex-col gap-2 text-sm">
-              <p>
-                <span className="font-medium">Teléfono:</span>{" "}
-                <a href="tel:+18096690431" className="hover:underline">
-                  809.669.0431
-                </a>
-              </p>
-              <p>
-                <span className="font-medium">WhatsApp:</span>{" "}
-                <a
-                  href="https://wa.me/18495170431"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:underline"
-                >
-                  +1 849 517 0431
-                </a>
-              </p>
-              <p>
-                <span className="font-medium">Email:</span>{" "}
-                <a
-                  href="mailto:centroceadi@hotmail.com"
-                  className="hover:underline"
-                >
-                  centroceadi@hotmail.com
-                </a>
-              </p>
-              <p>
-                <span className="font-medium">Instagram:</span>{" "}
-                <a
-                  href="https://instagram.com/centro_ceadi"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:underline"
-                >
-                  @centro_ceadi
-                </a>
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-              <div>
-                <p className="font-medium text-foreground">Sede Villa Marina</p>
-                <p>Calle 6 No.13, Villa Marina, D.N.</p>
+        <section id="contacto" className="border-t bg-muted/40">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <h2 className="mb-2 font-serif text-2xl font-semibold md:text-3xl">
+              Contacto
+            </h2>
+            <p className="mb-8 max-w-2xl text-sm text-muted-foreground">
+              Escribinos y te contactamos a la brevedad para coordinar tu
+              cita.
+            </p>
+
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="flex flex-col gap-6">
+                <Card className="bg-primary text-primary-foreground">
+                  <CardHeader>
+                    <CardTitle className="text-lg">
+                      Información de Contacto
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-5 text-sm">
+                    <div className="flex flex-col gap-3">
+                      <a
+                        href="tel:+18096690431"
+                        className="flex items-center gap-3 hover:underline"
+                      >
+                        <PhoneIcon className="size-5 shrink-0" />
+                        809.669.0431
+                      </a>
+                      <a
+                        href="https://wa.me/18495170431"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-3 hover:underline"
+                      >
+                        <MessageCircleIcon className="size-5 shrink-0" />
+                        WhatsApp: +1 849 517 0431
+                      </a>
+                      <a
+                        href="mailto:centroceadi@hotmail.com"
+                        className="flex items-center gap-3 hover:underline"
+                      >
+                        <MailIcon className="size-5 shrink-0" />
+                        centroceadi@hotmail.com
+                      </a>
+                    </div>
+
+                    <div className="flex flex-col gap-4 border-t border-primary-foreground/20 pt-4">
+                      {SEDES.map((sede) => (
+                        <div key={sede.name} className="flex gap-3">
+                          <MapPinIcon className="mt-0.5 size-5 shrink-0" />
+                          <div>
+                            <p className="font-medium">{sede.name}</p>
+                            <p className="text-primary-foreground/80">
+                              {sede.address}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <ClockIcon className="size-5" />
+                      Horario de Atención
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-1 text-sm text-muted-foreground">
+                    <p>Lunes a Viernes: 8:00 AM – 6:00 PM</p>
+                    <p>Sábados: 8:00 AM – 1:00 PM</p>
+                  </CardContent>
+                </Card>
               </div>
-              <div>
-                <p className="font-medium text-foreground">Sede Villa Mella</p>
-                <p>C/ Principal Urb. del Edén #9, Santo Domingo Norte</p>
-              </div>
+
+              <ContactForm servicios={SERVICIOS.map((s) => s.title)} />
             </div>
           </div>
         </section>
