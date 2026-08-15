@@ -27,6 +27,16 @@ export async function listResources(): Promise<Resource[]> {
   return (data ?? []) as Resource[];
 }
 
+export async function getResourceBySlug(slug: string): Promise<Resource | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("resources")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+  return data as Resource | null;
+}
+
 export async function listHeroSlides(): Promise<HeroSlide[]> {
   const supabase = await createClient();
   const { data } = await supabase

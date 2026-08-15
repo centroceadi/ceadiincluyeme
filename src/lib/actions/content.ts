@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { SlideTransition } from "@/lib/types/content";
+import type { ResourceType, SlideTransition } from "@/lib/types/content";
 
 /**
  * Server actions de contenido (equipo, recursos, carrusel). RLS decide
@@ -90,17 +90,46 @@ export async function deleteTeamMember(id: string) {
 
 // ---- recursos ----
 
+function slugify(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // saca acentos
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export async function createResource(formData: FormData) {
   const title = str(formData, "title");
   if (!title) throw new Error("El título es obligatorio.");
 
+  const resource_type = (str(formData, "resource_type") ??
+    "articulo") as ResourceType;
+  const tagsRaw = str(formData, "tags");
+  const tags = tagsRaw
+    ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+  const slugInput = str(formData, "slug");
+
   const supabase = await createClient();
+  const cover_image_url = await uploadImage(
+    supabase,
+    formData.get("cover_image"),
+    "resources"
+  );
+
   const { error } = await supabase.from("resources").insert({
     title,
     description: str(formData, "description"),
     url: str(formData, "url"),
     category: str(formData, "category"),
     display_order: Number(str(formData, "display_order") ?? "0"),
+    resource_type,
+    author: str(formData, "author"),
+    content: str(formData, "content"),
+    cover_image_url,
+    slug: resource_type === "articulo" ? (slugInput ?? slugify(title)) : null,
+    tags,
   });
   if (error) throw new Error(error.message);
 

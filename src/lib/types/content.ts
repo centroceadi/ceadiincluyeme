@@ -36,14 +36,25 @@ export type TeamMember = {
   updated_at: string;
 };
 
+export type ResourceType = "articulo" | "video";
+
 export type Resource = {
   id: string;
   title: string;
   description: string | null;
+  /** Link externo — para `resource_type: "video"`, el link a Vimeo/YouTube. */
   url: string | null;
   category: string | null;
   display_order: number;
   active: boolean;
+  resource_type: ResourceType;
+  author: string | null;
+  /** Cuerpo completo del artículo — null para videos. */
+  content: string | null;
+  cover_image_url: string | null;
+  /** Único cuando no es null — arma /recursos/[slug] para artículos. */
+  slug: string | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
 };

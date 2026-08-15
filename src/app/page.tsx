@@ -141,30 +141,49 @@ export default async function LandingPage() {
             </p>
             {resources.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-3">
-                {resources.map((resource) => (
-                  <Card key={resource.id}>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{resource.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-2">
-                      {resource.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {resource.description}
-                        </p>
+                {resources.map((resource) => {
+                  const href =
+                    resource.resource_type === "articulo" && resource.slug
+                      ? `/recursos/${resource.slug}`
+                      : resource.url;
+                  const isExternal = resource.resource_type === "video";
+
+                  return (
+                    <Card key={resource.id} className="overflow-hidden">
+                      {resource.cover_image_url && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={resource.cover_image_url}
+                          alt={resource.title}
+                          className="aspect-video w-full object-cover"
+                        />
                       )}
-                      {resource.url && (
-                        <a
-                          href={resource.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-sm text-primary hover:underline"
-                        >
-                          Ver más ↗
-                        </a>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                      <CardHeader>
+                        <CardTitle className="text-lg">{resource.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex flex-col gap-2">
+                        {resource.description && (
+                          <p className="line-clamp-3 text-sm text-muted-foreground">
+                            {resource.description}
+                          </p>
+                        )}
+                        {href && (
+                          <a
+                            href={href}
+                            {...(isExternal
+                              ? { target: "_blank", rel: "noreferrer" }
+                              : {})}
+                            className="text-sm text-primary hover:underline"
+                          >
+                            {resource.resource_type === "video"
+                              ? "Ver video ↗"
+                              : "Leer más →"}
+                          </a>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <p className="max-w-2xl text-sm text-muted-foreground">

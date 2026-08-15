@@ -288,5 +288,31 @@ generar el link a mano con la Admin API (mismo procedimiento que en Fase
 
 Con esto, las Fases 1–5 del plan original (fundación, núcleo clínico,
 roles/RLS, contabilidad, administración/contenido) están completas.
-Siguiente: Fase 6 (migración de datos reales desde Base44 + QA por rol)
-y Fase 7 (corte a producción) — ver `contexto` para el detalle.
+
+**Migración de contenido real (2026-08-15)**: los 5 recursos publicados en
+centroceadi.net (2 artículos completos, 3 videos) ya están cargados en la
+base real, con las imágenes de portada re-alojadas en nuestro Storage
+(no dependen de que el sitio viejo siga online). Primer pedazo real de
+Fase 6.
+
+- Migración `20260815000000_resources_articles.sql`: `resources` ahora
+  soporta `resource_type` (articulo/video), `author`, `content`
+  (cuerpo completo), `cover_image_url`, `slug` (único) y `tags`.
+- `/recursos/[slug]`: página pública del artículo completo, fuera del
+  layout del portal, protegida solo por RLS (no por rol — cualquiera
+  puede leer un recurso activo). Los videos no tienen página propia,
+  enlazan directo al link externo (Vimeo).
+- Cómo se sacó el contenido real sin acceso de admin al sitio viejo: el
+  HTML es una SPA Base44 (JS+CSS compilados servidos por CDN), pero sus
+  entidades de datos son legibles públicamente vía
+  `GET /api/apps/{appId}/entities/{EntityName}` en el propio dominio
+  (`centroceadi.net/api/apps/69c33a6b5ae8d596e4a6bb3d/entities/Resource`)
+  — el nombre exacto de la entidad (`Resource`, no `Resources` ni
+  `Recursos`) se encontró por prueba y error contra el mensaje de error
+  del backend. Sirvió porque esa entidad tenía permiso de lectura
+  pública configurado en Base44 (igual que nuestras tablas de
+  contenido); no aplica a entidades que requieran auth.
+
+Siguiente: seguir con Fase 6 (resto de la migración de datos reales
+desde Base44 + QA por rol) y Fase 7 (corte a producción) — ver
+`contexto` para el detalle.
