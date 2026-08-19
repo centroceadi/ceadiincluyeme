@@ -161,6 +161,15 @@ export default async function AdminRecursosPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        render={
+                          <Link href={`/portal/admin/recursos/${r.id}/editar`}>
+                            Modificar
+                          </Link>
+                        }
+                      />
                       <form
                         action={toggleResourceActive.bind(null, r.id, !r.active)}
                       >

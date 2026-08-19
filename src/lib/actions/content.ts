@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ContactRequestStatus,
@@ -138,6 +139,49 @@ export async function createResource(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidateContent();
+}
+
+export async function updateResource(id: string, formData: FormData) {
+  const title = str(formData, "title");
+  if (!title) throw new Error("El título es obligatorio.");
+
+  const resource_type = (str(formData, "resource_type") ??
+    "articulo") as ResourceType;
+  const tagsRaw = str(formData, "tags");
+  const tags = tagsRaw
+    ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+  const slugInput = str(formData, "slug");
+
+  const supabase = await createClient();
+  // Solo pisa la imagen de portada si se adjuntó un archivo nuevo — si no,
+  // se mantiene la que ya tenía (a diferencia de createResource, acá no
+  // hay valor por defecto: el campo puede llegar vacío en un update).
+  const newCoverImage = await uploadImage(
+    supabase,
+    formData.get("cover_image"),
+    "resources"
+  );
+
+  const update: Record<string, unknown> = {
+    title,
+    description: str(formData, "description"),
+    url: str(formData, "url"),
+    category: str(formData, "category"),
+    display_order: Number(str(formData, "display_order") ?? "0"),
+    resource_type,
+    author: str(formData, "author"),
+    content: str(formData, "content"),
+    slug: resource_type === "articulo" ? (slugInput ?? slugify(title)) : null,
+    tags,
+  };
+  if (newCoverImage) update.cover_image_url = newCoverImage;
+
+  const { error } = await supabase.from("resources").update(update).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidateContent();
+  redirect("/portal/admin/recursos");
 }
 
 export async function toggleResourceActive(id: string, active: boolean) {

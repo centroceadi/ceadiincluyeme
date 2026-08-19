@@ -42,6 +42,16 @@ export async function getResourceBySlug(slug: string): Promise<Resource | null> 
   return data as Resource | null;
 }
 
+export async function getResourceById(id: string): Promise<Resource | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("resources")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  return data as Resource | null;
+}
+
 export async function listHeroSlides(): Promise<HeroSlide[]> {
   const supabase = await createClient();
   const { data } = await supabase
